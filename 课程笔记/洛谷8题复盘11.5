@@ -1,0 +1,625 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>8 道题 · 循环怎么选</title>
+<style>
+:root{
+  --ink:#1b1b19; --ink2:#4a4a44; --ink3:#807f75;
+  --paper:#f7f5f0; --card:#fffdf8; --line:#e3dfd3; --line2:#efece3;
+  --teal:#0d6e64; --teal-bg:#e8f3f1;
+  --amber:#a8590b; --amber-bg:#fbf0e0;
+  --gray:#6b6a63; --gray-bg:#f0eee7;
+  --violet:#5f2fa8; --violet-bg:#f1ebfb;
+  --red:#a8321f;
+  --mono:Consolas,"Courier New",monospace;
+  --sans:-apple-system,"Segoe UI","Microsoft YaHei",sans-serif;
+}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{
+  margin:0; padding:0; background:var(--paper); color:var(--ink);
+  font-family:var(--sans); font-size:15px; line-height:1.75;
+  -webkit-font-smoothing:antialiased;
+}
+.wrap{max-width:960px; margin:0 auto; padding:44px 30px 80px}
+
+/* ---------- header ---------- */
+header{margin-bottom:44px; padding-bottom:26px; border-bottom:2px solid var(--ink)}
+h1{font-size:29px; line-height:1.3; margin:0 0 10px; letter-spacing:-.4px; font-weight:700}
+.lede{margin:0; color:var(--ink2); font-size:15.5px; max-width:660px}
+.lede b{color:var(--ink); font-weight:600}
+
+/* ---------- section ---------- */
+section{margin:0 0 52px}
+h2{
+  font-size:20px; margin:0 0 6px; font-weight:700; letter-spacing:-.2px;
+  display:flex; align-items:baseline; gap:10px;
+}
+h2 .num{
+  font-family:var(--mono); font-size:12px; font-weight:700; color:#fff;
+  background:var(--ink); border-radius:3px; padding:2px 7px; letter-spacing:.5px;
+  transform:translateY(-2px);
+}
+.sub{margin:0 0 20px; color:var(--ink3); font-size:13.5px}
+h2.minor{
+  font-size:16px; margin:38px 0 4px; padding-top:22px;
+  border-top:1px dashed var(--line); color:var(--ink2);
+}
+
+/* ---------- code ---------- */
+code,.mono{font-family:var(--mono)}
+code{
+  background:#efece3; padding:1.5px 5px; border-radius:3px;
+  font-size:13.2px; color:#2a2a26; white-space:nowrap;
+}
+.blk{
+  display:block; background:var(--card); border:1px solid var(--line);
+  border-left:3px solid var(--ink3); padding:11px 14px; border-radius:0 4px 4px 0;
+  font-family:var(--mono); font-size:13.2px; line-height:1.85; color:#2a2a26;
+  white-space:pre; overflow-x:auto; margin:10px 0;
+}
+
+/* ---------- 判据卡 ---------- */
+.verdict{
+  display:grid; grid-template-columns:1fr 1fr; gap:14px; margin:22px 0 8px;
+}
+.vd{
+  border-radius:6px; padding:16px 18px; border:1px solid;
+}
+.vd.for{border-color:#bcd8d3; background:var(--teal-bg)}
+.vd.wh{border-color:#ead3ac; background:var(--amber-bg)}
+.vd .tag{
+  display:inline-block; font-family:var(--mono); font-size:11.5px; font-weight:700;
+  padding:2px 8px; border-radius:3px; margin-bottom:8px; letter-spacing:.3px;
+}
+.vd.for .tag{background:var(--teal); color:#fff}
+.vd.wh .tag{background:var(--amber); color:#fff}
+.vd p{margin:0; font-size:14px; line-height:1.7; color:var(--ink2)}
+.vd p b{color:var(--ink)}
+
+/* ---------- 模式卡 ---------- */
+.modes{display:grid; gap:16px}
+.mode{
+  background:var(--card); border:1px solid var(--line); border-radius:8px;
+  padding:20px 22px; position:relative; overflow:hidden;
+}
+.mode::before{
+  content:""; position:absolute; left:0; top:0; bottom:0; width:4px;
+}
+.mode.a::before{background:var(--gray)}
+.mode.b::before{background:var(--teal)}
+.mode.c::before{background:var(--amber)}
+.mode.d::before{background:var(--violet)}
+.mode-hd{display:flex; align-items:center; gap:12px; margin-bottom:4px; flex-wrap:wrap}
+.mode-hd h3{margin:0; font-size:16.5px; font-weight:700}
+.pill{
+  font-family:var(--mono); font-size:11.5px; font-weight:700; padding:2px 8px;
+  border-radius:3px; letter-spacing:.2px;
+}
+.pill.a{background:var(--gray-bg); color:var(--gray)}
+.pill.b{background:var(--teal-bg); color:var(--teal)}
+.pill.c{background:var(--amber-bg); color:var(--amber)}
+.pill.d{background:var(--violet-bg); color:var(--violet)}
+.mode .sig{
+  font-size:13.5px; color:var(--ink3); margin:0 0 12px;
+}
+.mode .sig b{color:var(--ink2); font-weight:600}
+.mode .who{
+  font-size:13px; color:var(--ink3); margin:10px 0 0;
+  padding-top:10px; border-top:1px dashed var(--line);
+}
+.mode .who b{color:var(--ink); font-weight:600}
+.mode .blk{margin:6px 0 0; background:#fbfaf5}
+
+/* ---------- 逐题推导链 ---------- */
+.chain{
+  background:var(--card); border:1px solid var(--line); border-radius:8px;
+  margin-bottom:18px; overflow:hidden;
+}
+.ch-hd{
+  display:flex; align-items:center; gap:12px; padding:13px 18px;
+  background:#faf8f2; border-bottom:1px solid var(--line2); flex-wrap:wrap;
+}
+.ch-hd .pid{font-family:var(--mono); font-size:13px; font-weight:700; color:var(--ink)}
+.ch-hd .pname{font-size:15px; font-weight:600; color:var(--ink)}
+.ch-hd .spacer{flex:1}
+.ch-body{padding:4px 18px 16px}
+.row{display:grid; grid-template-columns:96px 1fr; gap:16px; padding:10px 0; border-bottom:1px solid var(--line2)}
+.row:last-child{border-bottom:none}
+.row dt{
+  font-size:12.5px; font-weight:700; color:var(--ink3); letter-spacing:.3px;
+  padding-top:2px;
+}
+.row dd{margin:0; font-size:14px; color:var(--ink2); line-height:1.72}
+.row dd b{color:var(--ink); font-weight:600}
+.row dd .blk{margin:7px 0 0}
+.row.key dd{color:var(--ink)}
+.row.pit dt{color:var(--red)}
+.row.pit dd{color:var(--ink2)}
+.row.pick dd{font-size:13.5px}
+
+/* ---------- 变形卡 ---------- */
+.vary{display:grid; gap:12px}
+.vc{
+  background:var(--card); border:1px solid var(--line); border-radius:6px;
+  padding:15px 18px;
+}
+.vc .q{font-size:14.5px; margin:0 0 8px; color:var(--ink)}
+.vc .q b{font-weight:700}
+.vc .a{font-size:13.5px; margin:0; color:var(--ink2); display:flex; gap:9px; align-items:flex-start}
+.vc .a .arw{color:var(--ink3); font-family:var(--mono); flex-shrink:0}
+.vc .a b{color:var(--ink); font-weight:600}
+
+/* ---------- 表 ---------- */
+table{width:100%; border-collapse:collapse; font-size:13.8px; margin:10px 0 0; background:var(--card)}
+th,td{text-align:left; padding:9px 12px; border-bottom:1px solid var(--line2); vertical-align:top}
+thead th{
+  font-size:12px; font-weight:700; color:var(--ink3); letter-spacing:.4px;
+  border-bottom:1.5px solid var(--line); background:#faf8f2;
+}
+tbody tr:last-child td{border-bottom:none}
+td.mono{font-family:var(--mono); font-size:12.8px; white-space:nowrap}
+td b{font-weight:700}
+
+/* ---------- 自查 ---------- */
+.steps{counter-reset:s; list-style:none; padding:0; margin:12px 0 0}
+.steps li{
+  counter-increment:s; position:relative; padding:12px 0 12px 46px;
+  border-bottom:1px solid var(--line2); font-size:14.2px; color:var(--ink2);
+}
+.steps li:last-child{border-bottom:none}
+.steps li::before{
+  content:counter(s); position:absolute; left:0; top:13px;
+  width:26px; height:26px; border-radius:50%; background:var(--ink); color:#fff;
+  font-family:var(--mono); font-size:12.5px; font-weight:700;
+  display:flex; align-items:center; justify-content:center;
+}
+.steps li b{color:var(--ink); font-weight:600}
+
+.close{
+  margin-top:52px; padding:22px 24px; background:var(--card);
+  border:1px solid var(--line); border-left:4px solid var(--ink); border-radius:0 6px 6px 0;
+}
+.close p{margin:0; font-size:14.5px; color:var(--ink2)}
+.close p+p{margin-top:10px}
+.close b{color:var(--ink); font-weight:600}
+
+svg{display:block; max-width:100%; height:auto}
+
+@media (max-width:720px){
+  .wrap{padding:28px 18px 60px}
+  h1{font-size:23px}
+  .verdict{grid-template-columns:1fr}
+  .row{grid-template-columns:1fr; gap:3px}
+  .row dt{padding-top:0}
+  td.mono{white-space:normal}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header>
+  <h1>8 道题 · 循环怎么选</h1>
+  <p class="lede">这一份不再讲"循环有四个零件"这类通用道理，只做一件事：<b>把每道题的循环条件拎出来，看它里面站的是谁</b>，据此决定用 <code>for</code> 还是 <code>while</code>，以及为什么这道题本来该这么写。</p>
+</header>
+
+<!-- ============ 1 ============ -->
+<section>
+  <h2><span class="num">01</span>一句话判据</h2>
+  <p class="sub">把 8 道题的循环条件并排放，它们只分成两堆。</p>
+
+  <div class="verdict">
+    <div class="vd for">
+      <span class="tag">for</span>
+      <p>条件里站的是<b>计数器 i</b>：<br><code>i &lt;= 7</code>、<code>i &lt;= n</code>、<code>j &lt;= i</code><br><br>
+      轮数在<b>开跑前就定死了</b>，<code>i</code> 只负责数第几轮。</p>
+    </div>
+    <div class="vd wh">
+      <span class="tag">while</span>
+      <p>条件里站的是<b>业务量</b>：<br><code>Sn &lt;= k</code>、<code>total &lt; s</code>、<code>sum &lt; L</code><br><br>
+      跑几轮<b>要跑完才知道</b>，<code>i</code> 只是个副产品。</p>
+    </div>
+  </div>
+
+  <p style="margin-top:18px;font-size:14px;color:var(--ink2)">
+    这条判据比"次数已知用 for、次数未知用 while"更好用，因为你不必先想清楚"次数知不知道"——<b>直接看条件里写的是什么名字</b>就行。名字是 <code>i</code>，用 for；名字是题目里的那个量，用 while。
+  </p>
+
+  <h2 class="minor">决策顺序 · 三道问题问下去，循环就选出来了</h2>
+
+  <svg viewBox="0 0 900 400" width="100%" role="img" font-family="-apple-system,'Segoe UI','Microsoft YaHei',sans-serif">
+    <title>循环选型决策图</title>
+    <defs>
+      <marker id="ar" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+        <path d="M2 1.2L8.2 5L2 8.8" fill="none" stroke="#9c9a90" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+      </marker>
+    </defs>
+
+    <!-- 行1 -->
+    <rect x="30" y="30" width="250" height="72" rx="6" fill="#fffdf8" stroke="#d9d4c7" stroke-width="1.2"/>
+    <text x="155" y="60" text-anchor="middle" font-size="14" font-weight="600" fill="#1b1b19">这题需要重复做吗？</text>
+    <text x="155" y="82" text-anchor="middle" font-size="11.5" fill="#807f75">题面有没有"一直""直到""每个"</text>
+    <line x1="280" y1="66" x2="326" y2="66" stroke="#9c9a90" stroke-width="1.4" marker-end="url(#ar)"/>
+    <text x="303" y="57" text-anchor="middle" font-size="10.5" fill="#807f75">否</text>
+    <rect x="336" y="30" width="534" height="72" rx="6" fill="#f0eee7" stroke="#d6d1c3" stroke-width="1.2"/>
+    <text x="356" y="60" font-size="14" font-weight="600" fill="#4a4a44">闭式计算 / 分支查表 · 不要开循环</text>
+    <text x="356" y="82" font-size="12" fill="#6b6a63" font-family="Consolas,monospace">P1421 · P5711 · P5716</text>
+
+    <!-- 竖箭头1 -->
+    <line x1="155" y1="102" x2="155" y2="146" stroke="#9c9a90" stroke-width="1.4" marker-end="url(#ar)"/>
+    <text x="167" y="130" font-size="10.5" fill="#807f75">是</text>
+
+    <!-- 行2 -->
+    <rect x="30" y="152" width="250" height="72" rx="6" fill="#fffdf8" stroke="#d9d4c7" stroke-width="1.2"/>
+    <text x="155" y="182" text-anchor="middle" font-size="14" font-weight="600" fill="#1b1b19">轮数开跑前知道吗？</text>
+    <text x="155" y="204" text-anchor="middle" font-size="11.5" fill="#807f75">题面写死、或输入里给了 n</text>
+    <line x1="280" y1="188" x2="326" y2="188" stroke="#9c9a90" stroke-width="1.4" marker-end="url(#ar)"/>
+    <text x="303" y="179" text-anchor="middle" font-size="10.5" fill="#807f75">知道</text>
+    <rect x="336" y="152" width="534" height="72" rx="6" fill="#e8f3f1" stroke="#bcd8d3" stroke-width="1.2"/>
+    <text x="356" y="182" font-size="14" font-weight="600" fill="#0d6e64" font-family="Consolas,monospace">for (i = 1; i &lt;= N; i++)</text>
+    <text x="356" y="204" font-size="12" fill="#0d6e64" font-family="Consolas,monospace" opacity="0.85">P1085 · P5726 · P5723 内层</text>
+
+    <!-- 竖箭头2 -->
+    <line x1="155" y1="224" x2="155" y2="268" stroke="#9c9a90" stroke-width="1.4" marker-end="url(#ar)"/>
+    <text x="167" y="252" font-size="10.5" fill="#807f75">不知道</text>
+
+    <!-- 行3 -->
+    <rect x="30" y="274" width="250" height="96" rx="6" fill="#fffdf8" stroke="#d9d4c7" stroke-width="1.2"/>
+    <text x="155" y="304" text-anchor="middle" font-size="14" font-weight="600" fill="#1b1b19">停止条件进循环体</text>
+    <text x="155" y="324" text-anchor="middle" font-size="14" font-weight="600" fill="#1b1b19">之前算得出来吗？</text>
+    <text x="155" y="346" text-anchor="middle" font-size="11.5" fill="#807f75">那个量此刻有没有值</text>
+    <line x1="280" y1="322" x2="326" y2="322" stroke="#9c9a90" stroke-width="1.4" marker-end="url(#ar)"/>
+    <rect x="336" y="274" width="534" height="96" rx="6" fill="#fbf0e0" stroke="#ead3ac" stroke-width="1.2"/>
+    <text x="356" y="303" font-size="13.5" font-weight="600" fill="#a8590b" font-family="Consolas,monospace">算得出 → while (条件)</text>
+    <text x="640" y="303" font-size="11.5" fill="#a8590b" font-family="Consolas,monospace" opacity="0.85">P1035 · P1423 · P5723 外层</text>
+    <line x1="356" y1="320" x2="850" y2="320" stroke="#ead3ac" stroke-width="1"/>
+    <text x="356" y="342" font-size="13.5" font-weight="600" fill="#a8590b" font-family="Consolas,monospace">算不出 → while (1) + break</text>
+    <text x="640" y="342" font-size="11.5" fill="#a8590b" opacity="0.85">要读完这一轮才知道，如读到 EOF 才停</text>
+    <text x="356" y="361" font-size="11" fill="#a8590b" opacity="0.7">这 8 题都没有用到这一档</text>
+  </svg>
+
+  <p style="margin-top:16px;font-size:13.8px;color:var(--ink2)">
+    注意第三行：<b>P1035 和 P1423 的停止条件是"进体前"就算得出来的</b>——因为 <code>Sn</code>、<code>total</code> 里装的是上一轮跑完留下的累计值。你当时写成 <code>while (1)</code> + <code>break</code> 也能 AC，但那等于把判断从门口搬到了屋里，多绕了一步。
+  </p>
+</section>
+
+<!-- ============ 2 ============ -->
+<section>
+  <h2><span class="num">02</span>8 道题抽象成 4 种模式</h2>
+  <p class="sub">题号是 8 个，骨架只有 4 个。认出骨架，下次就是套用而不是重新想。</p>
+
+  <div class="modes">
+
+    <div class="mode a">
+      <div class="mode-hd">
+        <span class="pill a">模式 A · 无循环</span>
+        <h3>一次计算 / 一次判定 / 一次查表</h3>
+      </div>
+      <p class="sig">识别信号：题面<b>只给一组输入</b>，问"输出是什么"，没有"每个""一直""直到"。</p>
+      <p style="font-size:13.8px;color:var(--ink2);margin:0">
+        这一类的训练目标是<b>想清楚要不要开循环</b>。P1421 用一支一支减的循环也能做出来，但那是把一步除法能解决的事拆成 n 步——写对了，但是想歪了。
+      </p>
+      <p class="who">成员：<b>P1421</b> 单位换算 + 整除 · <b>P5711</b> 布尔表达式 · <b>P5716</b> 离散映射查表</p>
+    </div>
+
+    <div class="mode b">
+      <div class="mode-hd">
+        <span class="pill b">模式 B · 定次扫描</span>
+        <h3>跑固定的 N 轮，每轮读一个值、更新几个"记录变量"</h3>
+      </div>
+      <p class="sig">识别信号：题面出现<b>明确的轮数</b>——"连续 7 天""n 个评委"；轮数是输入的一部分或干脆写死。</p>
+      <span class="blk">for (i = 1; i &lt;= N; i++) {
+    scanf(...);              /* 每轮取一个 */
+    if (... ) 记录变量 = ...;  /* 每轮比一次 */
+}                            /* 循环只是"过一遍"，答案在记录变量里 */</span>
+      <p style="font-size:13.8px;color:var(--ink2);margin:10px 0 0">
+        这一类的<b>全部难点都不在循环上</b>，而在循环体里那几个"记录变量"：要几个、初值朝哪边。循环本身是三段式，闭着眼都不会写错。
+      </p>
+      <p class="who">成员：<b>P1085</b> 7 轮找最大值 · <b>P5726</b> n 轮同时算和 / 最大 / 最小 · <b>P5723 内层</b> 试除 1..i</p>
+    </div>
+
+    <div class="mode c">
+      <div class="mode-hd">
+        <span class="pill c">模式 C · 条件驱动累加</span>
+        <h3>跑到累计量越过阈值为止，跑几轮事先不知道</h3>
+      </div>
+      <p class="sig">识别信号：题面出现<b>"直到……为止""最小的一次数""够……就停"</b>，而且停下来靠的是一个累加出来的量。</p>
+      <span class="blk">while (累计量 &lt; 阈值) {
+    计数++;
+    累计量 += 这一轮的增量;
+    增量    = 下一轮的增量;   /* 推进，没有它必死循环 */
+}</span>
+      <p style="font-size:13.8px;color:var(--ink2);margin:10px 0 0">
+        难点集中在<b>三个动作的先后顺序</b>。同一个 <code>Sn += 1.0/i</code>，<code>i++</code> 放前面还是后面，答案差一项。这是模式 C 唯一的坑，也是最值钱的坑。
+      </p>
+      <p class="who">成员：<b>P1035</b> 调和级数越过 k · <b>P1423</b> 几何级数越过 s · <b>P5723 外层</b> 质数和不超过 L</p>
+    </div>
+
+    <div class="mode d">
+      <div class="mode-hd">
+        <span class="pill d">模式 D · 双层嵌套</span>
+        <h3>外层决定"还要不要装"，内层决定"这一个行不行"</h3>
+      </div>
+      <p class="sig">识别信号：题面里有两层重复——<b>对每个数判断一次</b>，而"判断一次"本身又要扫一遍。</p>
+      <p style="font-size:13.8px;color:var(--ink2);margin:0 0 6px">
+        关键认知：<b>内外层各自独立选型</b>。外层条件里是 <code>sum</code>（业务量）→ while；内层条件里是 <code>j &lt;= i</code>（计数器）→ for。不要因为外层是 while，就把内层也写成 while。
+      </p>
+      <p class="who">成员：<b>P5723</b> 外层 while（sum &lt; L）+ 内层 for（j = 1..i）</p>
+    </div>
+
+  </div>
+</section>
+
+<!-- ============ 3 ============ -->
+<section>
+  <h2><span class="num">03</span>逐题：从题面推到骨架</h2>
+  <p class="sub">每道题固定五行——题面说了什么、抽象成什么、条件里站的是谁、骨架长什么样、真正会写错的地方在哪。</p>
+
+  <!-- P1421 -->
+  <div class="chain">
+    <div class="ch-hd">
+      <span class="pid">P1421</span><span class="pname">小玉买文具</span>
+      <span class="spacer"></span><span class="pill a">无循环</span>
+    </div>
+    <div class="ch-body">
+      <dl>
+        <div class="row"><dt>题面</dt><dd>1 元 = 10 角，铅笔 19 角一支，给 a 元 b 角，问最多买几支。</dd></div>
+        <div class="row key"><dt>抽象</dt><dd>一支一支买会重复，但<b>重复的是同一个减法，且次数可以一步算出来</b> → 等价于一次整除。</dd></div>
+        <div class="row pick"><dt>选型</dt><dd>不需要循环。凡"最多买几个""最多分几组"，只要单价固定，答案就是除法。</dd></div>
+        <div class="row"><dt>骨架</dt><dd><span class="blk">scanf("%d%d", &amp;yuan, &amp;jiao);
+printf("%d", (yuan * 10 + jiao) / 19);</span></dd></div>
+        <div class="row pit"><dt>会错在</dt><dd>用 <code>(yuan + jiao / 10.0) / 1.9</code> 走浮点。除以 19 角时精度会咬你一口，答案偶尔差 1。题目给的是角，就全程用角，<b>整数运算不进浮点，就不会有误差</b>。</dd></div>
+      </dl>
+    </div>
+  </div>
+
+  <!-- P5711 -->
+  <div class="chain">
+    <div class="ch-hd">
+      <span class="pid">P5711</span><span class="pname">闰年判断</span>
+      <span class="spacer"></span><span class="pill a">无循环</span>
+    </div>
+    <div class="ch-body">
+      <dl>
+        <div class="row"><dt>题面</dt><dd>给一个年份，是闰年输出 1，否则 0。</dd></div>
+        <div class="row key"><dt>抽象</dt><dd>输入一个数，输出一个布尔值。整个程序就是<b>一条表达式</b>。</dd></div>
+        <div class="row pick"><dt>选型</dt><dd>不需要循环。这类题的训练点是<b>逻辑运算符的优先级</b>，不是控制流。</dd></div>
+        <div class="row"><dt>骨架</dt><dd><span class="blk">if ((year % 4 == 0 &amp;&amp; year % 100 != 0) || year % 400 == 0)</span></dd></div>
+        <div class="row pit"><dt>会错在</dt><dd>只写 <code>% 4 == 0</code>，1900 年就算错了；只写 <code>% 4</code> 和 <code>% 100</code>，2000 年就错了。<code>&amp;&amp;</code> 优先级高于 <code>||</code>，不加括号也能对，但<b>加括号是为了让读的人不用背优先级表</b>。</dd></div>
+      </dl>
+    </div>
+  </div>
+
+  <!-- P5716 -->
+  <div class="chain">
+    <div class="ch-hd">
+      <span class="pid">P5716</span><span class="pname">月份天数</span>
+      <span class="spacer"></span><span class="pill a">无循环 · switch</span>
+    </div>
+    <div class="ch-body">
+      <dl>
+        <div class="row"><dt>题面</dt><dd>给年和月，输出这个月有几天。</dd></div>
+        <div class="row key"><dt>抽象</dt><dd>月 → 天数是一张<b>离散映射表</b>，只有 2 月还要再看年份。用 <code>if</code> 链也能写，但要写十几个分支。</dd></div>
+        <div class="row pick"><dt>选型</dt><dd><code>switch</code> 的语义是"<b>值相等就跳过去</b>"，正好对应"按月份查表"。多个月份共用同一个结果时，用 case 穿透一次写清。</dd></div>
+        <div class="row"><dt>骨架</dt><dd><span class="blk">switch (month) {
+case 1: case 3: case 5: case 7: case 8: case 10: case 12:
+    printf("31"); break;
+case 4: case 6: case 9: case 11:
+    printf("30"); break;
+case 2:
+    printf(闰年 ? "29" : "28"); break;   /* ← 补上 break */
+}</span></dd></div>
+        <div class="row pit"><dt>会错在</dt><dd>你这次 <code>case 2</code> 没有 <code>break</code>，没出事<b>只因为它是最后一个分支</b>。哪天你补上一个 <code>default</code>，它就会掉进去打出"2828月份错误"。穿透是"故意"还是"忘了"，代码上看不出来——所以除了刻意共用的，每个分支都补 <code>break</code>。</dd></div>
+      </dl>
+    </div>
+  </div>
+
+  <!-- P1085 -->
+  <div class="chain">
+    <div class="ch-hd">
+      <span class="pid">P1085</span><span class="pname">不高兴的津津</span>
+      <span class="spacer"></span><span class="pill b">for · 7 轮</span>
+    </div>
+    <div class="ch-body">
+      <dl>
+        <div class="row"><dt>题面</dt><dd>连续 7 天，每天给在校时长和课外班时长，找"两项之和最大"的那天；若最大值不超过 8，输出 0。（并列取最早）</dd></div>
+        <div class="row key"><dt>抽象</dt><dd>7 轮扫描，每轮算一个 <code>s = x + y</code>，维护两个记录变量：<b>目前最大的和</b>、<b>它属于第几天</b>。</dd></div>
+        <div class="row pick"><dt>选型</dt><dd>条件 <code>i &lt;= 7</code> 里站的是计数器 <code>i</code>，7 是题面写死的 → <b>for</b>。三件事全围绕 <code>i</code>，写成 for 一眼就能看出"跑 7 轮"。</dd></div>
+        <div class="row"><dt>骨架</dt><dd><span class="blk">int max = 0, day = 0;
+for (i = 1; i &lt;= 7; i++) {
+    scanf("%d %d", &amp;x, &amp;y);
+    s = x + y;
+    if (s &gt; max) { max = s; day = i; }   /* 严格大于 */
+}
+if (max &lt;= 8) day = 0;</span></dd></div>
+        <div class="row pit"><dt>会错在</dt><dd><b>① 用 <code>&gt;=</code> 就 WA。</b>题目要"最早那天"，<code>&gt;=</code> 会让后来打平的那天把记录覆盖掉。<br>
+          <b>② <code>max = 0</code> 在这里是安全的，但只是碰巧。</b>因为 <code>x + y ≥ 0</code>，第一轮一定能更新；就算全是 0 分，"最大值 ≤ 8 → 输出 0"这条兜底规则也给出了正确答案。<b>换道题、换个输出规则，这个 0 就变成 bug 了</b>——P5726 的 <code>min = 9</code> 就是同一个思路走到头的反面教材。</dd></div>
+      </dl>
+    </div>
+  </div>
+
+  <!-- P5726 -->
+  <div class="chain">
+    <div class="ch-hd">
+      <span class="pid">P5726</span><span class="pname">打分</span>
+      <span class="spacer"></span><span class="pill b">for · n 轮</span><span class="pill" style="background:#f7e2de;color:#a8321f">真 bug</span>
+    </div>
+    <div class="ch-body">
+      <dl>
+        <div class="row"><dt>题面</dt><dd>n 个评委打分（0~10），去掉一个最高分和一个最低分，求平均，保留两位小数。3 ≤ n ≤ 1000。</dd></div>
+        <div class="row key"><dt>抽象</dt><dd>n 轮扫描，<b>一轮同时更新三个记录变量</b>：总和、最大值、最小值。不需要存数组——因为最后只要和，不要原始数据。</dd></div>
+        <div class="row pick"><dt>选型</dt><dd>条件 <code>i &lt;= n</code> 里站的是计数器，n 由输入给出 → <b>for</b>。n 虽在运行时才知道，但它<b>读入之后、"开跑之前"就是确定值</b>，性质上仍属"轮数已知"。</dd></div>
+        <div class="row"><dt>骨架</dt><dd><span class="blk">int max = -1, min = 11;          /* 哨兵放在 0~10 之外两侧 */
+double sum = 0;
+for (i = 1; i &lt;= n; i++) {
+    scanf("%d", &amp;x);
+    sum += x;
+    if (x &gt; max) max = x;
+    if (x &lt; min) min = x;
+}
+printf("%.2f", (sum - max - min) / (n - 2.0));</span></dd></div>
+        <div class="row pit"><dt>会错在</dt><dd><b>你的 <code>min = 9</code> 是真的错。</b>分数上限是 10，<code>9 &gt;= 10</code> 不成立，<code>min</code> 就永远停在 9。三组 <code>10 10 10</code> 输入你的程序输出 <b>11.00</b>，正确是 10.00。洛谷没有这组数据，所以过了。<br>
+          <b>哨兵方向的正确想法不是"从上限往下退一格"，而是"放在所有可能值的外面"</b>：找最小就放在最大可能值<b>之上</b>（用 11），找最大就放在最小可能值<b>之下</b>（用 -1）。这样每个真实值都必然满足一次，不需要你去猜"会不会刚好等于边界"。<br>
+          <b>另外两处</b>：<code>if (n != 1)</code> 是死代码（题面保证 n ≥ 3），而且它依赖 <code>x</code> 在循环后仍留着最后一次读入的值——把结果托付给一个已经不该再用的变量；<code>int score;</code> 从头到尾没用过，<code>-Wall</code> 的 unused 警告本来就在提醒你。</dd></div>
+      </dl>
+    </div>
+  </div>
+
+  <!-- P1035 -->
+  <div class="chain">
+    <div class="ch-hd">
+      <span class="pid">P1035</span><span class="pname">级数求和</span>
+      <span class="spacer"></span><span class="pill c">while · 条件驱动</span>
+    </div>
+    <div class="ch-body">
+      <dl>
+        <div class="row"><dt>题面</dt><dd>求最小的 n，使 1 + 1/2 + 1/3 + … + 1/n &gt; k。</dd></div>
+        <div class="row key"><dt>抽象</dt><dd>一轮加一项，<b>加到累计和越过 k 的那一轮就是答案</b>。轮数事先根本不知道——k 大一点可能就是几百万轮。</dd></div>
+        <div class="row pick"><dt>选型</dt><dd>条件 <code>Sn &lt;= k</code> 里站的是业务量 <code>Sn</code>，不是计数器 → <b>while</b>。你写成 <code>while (Sn &lt;= k)</code>，这一步是对的。</dd></div>
+        <div class="row"><dt>骨架</dt><dd><span class="blk">int i = 0;
+double Sn = 0;
+while (Sn &lt;= k) {
+    i++;                /* 先确定"加哪一项" */
+    Sn += 1.0 / i;      /* 再加这一项 */
+}
+printf("%d", i);        /* 退出时 i 就是越过 k 的那一项 */</span></dd></div>
+        <div class="row pit"><dt>会错在</dt><dd><b>① <code>1 / i</code> 是整数除法</b>，除 i=1 之外全是 0，Sn 永远是 1，循环停不下来。必须有 <code>1.0</code>。<br>
+          <b>② 两个动作的顺序是唯一的。</b><code>i++</code> 必须在 <code>Sn +=</code> 之前：如果先累加，第一轮就是 <code>1.0 / 0</code>，除以零，程序直接崩。<br>
+          <b>③ 退出时不要再 <code>i + 1</code>。</b>循环条件写的是"还没到"，退出那一轮 i 已经加过了，直接输出。<b>这一类 off-by-one 全部来自"没在纸上走一遍前两轮"。</b></dd></div>
+      </dl>
+    </div>
+  </div>
+
+  <!-- P1423 -->
+  <div class="chain">
+    <div class="ch-hd">
+      <span class="pid">P1423</span><span class="pname">小玉在游泳</span>
+      <span class="spacer"></span><span class="pill c">while · 条件驱动</span><span class="pill" style="background:#fbf0e0;color:#a8590b">写法待改</span>
+    </div>
+    <div class="ch-body">
+      <dl>
+        <div class="row"><dt>题面</dt><dd>第一次游 2 米，之后每次是前一次的 98%，问游够 s 米最少要几次。</dd></div>
+        <div class="row key"><dt>抽象</dt><dd>和 P1035 <b>骨架完全一样</b>：一个累计量加上去，一个每轮的增量自己变小。区别只是增量从 <code>1/i</code> 换成了"上一轮 × 0.98"。</dd></div>
+        <div class="row pick"><dt>选型</dt><dd>条件 <code>total &lt; s</code> 里站的是业务量 <code>total</code> → <b>while</b>。你写的是 <code>for (cnt = 0; i = 1; )</code>——中间那个槽是赋值不是判断，值恒为 1，等于手写了个死循环。</dd></div>
+        <div class="row"><dt>骨架</dt><dd><span class="blk">int cnt = 0;
+double total = 0, pave = 2.0;
+while (total &lt; s) {
+    cnt++;
+    total += pave;
+    pave  *= 0.98;
+}</span></dd></div>
+        <div class="row pit"><dt>会错在</dt><dd><b>① 表达"故意死循环"有两种正经写法</b>：<code>while (1)</code> 或 <code>for (;;)</code>，一眼就知道是故意的。你这题的判断其实<b>能挪到循环头上</b>——<code>total</code> 在进体前就有值（上一轮的累计），所以根本不需要 <code>break</code>。<br>
+          <b>② <code>i = 1</code> 这个写法真正的危险不在本题。</b>今天它恰好恒真；但 <code>for (i = 0; i = n; i++)</code> 这种写法，意思是"n 非零就继续"，n 变成 0 时循环一声不吭地不跑了。<b>看到 for 第二个槽里有 <code>=</code>，反射性地数一下是不是两个。</b><br>
+          <b>③ 用 <code>double</code> 不用 <code>float</code>。</b>累加上百轮，float 的 7 位有效数字会在末尾累积误差，样例能过、测试点挂掉。</dd></div>
+      </dl>
+    </div>
+  </div>
+
+  <!-- P5723 -->
+  <div class="chain">
+    <div class="ch-hd">
+      <span class="pid">P5723</span><span class="pname">质数口袋</span>
+      <span class="spacer"></span><span class="pill d">双层 · 外 while 内 for</span>
+    </div>
+    <div class="ch-body">
+      <dl>
+        <div class="row"><dt>题面</dt><dd>给容量 L，从 2 开始依次往口袋里装质数，装到总和不超过 L 为止。输出装了几个、分别是哪些。</dd></div>
+        <div class="row key"><dt>抽象</dt><dd>两层重复：<b>外层问"还要不要继续装"</b>（看已装的和），<b>内层问"这一个 i 是不是质数"</b>（试除 1..i）。两层的停止依据完全不同。</dd></div>
+        <div class="row pick"><dt>选型</dt><dd><b>分开判断，别看外层。</b>外层条件 <code>sum &lt; L</code> 里是业务量 → <b>while</b>；内层条件 <code>j &lt;= i</code> 里是计数器 → <b>for</b>。<br>
+          你两层都写了 while，能跑，但内层的 <code>j++</code> 埋在体里，哪天忘了写就是死循环——而这本来是可以由 for 帮你兜住的。</dd></div>
+        <div class="row"><dt>骨架</dt><dd><span class="blk">int sum = 0, num = 0, i = 1;
+while (sum &lt; L) {
+    i++;
+    int cnt = 0;
+    for (j = 1; j &lt;= i; j++)      /* ← 内层该用 for */
+        if (i % j == 0) cnt++;
+    if (cnt == 2 &amp;&amp; sum + i &lt;= L) {  /* 装得下才装 */
+        sum += i; num++;
+        printf("%d\n", i);
+    }
+}</span></dd></div>
+        <div class="row pit"><dt>会错在</dt><dd><b>① "试除完再判断"是跑满型，慢但不会错。</b>你这题 AC 了，没问题。等你学了函数可以换成"一发现能整除就判定不是质数"，那时内层就能提前 <code>break</code>——<b>这是搜索型的写法，属于优化，不是纠错。</b><br>
+          <b>② 判定条件和装入口袋是两件事，别合并。</b>要 <code>cnt == 2</code>（是质数）<b>并且</b> <code>sum + i &lt;= L</code>（装得下）两个条件都成立才装。你写对了。<br>
+          <b>③ 循环条件用 <code>sum &lt; L</code> 而不是 <code>sum + i &lt;= L</code></b>：后者依赖还没算出来的 i，写不进去。</dd></div>
+      </dl>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 4 ============ -->
+<section>
+  <h2><span class="num">04</span>换一个条件，选型就变</h2>
+  <p class="sub">这才是判据有没有真的学会。以下五组，同一道题、不同要求，循环换了。</p>
+
+  <div class="vary">
+    <div class="vc">
+      <p class="q"><b>P1035</b> 改成："求前 100 项的和"</p>
+      <p class="a"><span class="arw">→</span><span>轮数<b>变成已知的 100</b>，条件里从 <code>Sn</code> 换成了 <code>i</code>，选型跟着从 while 变成 for：<code>for (i = 1; i &lt;= 100; i++) Sn += 1.0/i;</code>。<b>"停"这件事根本不存在了</b>，因为跑多少轮是题面定的，不是数据定的。</span></p>
+    </div>
+    <div class="vc">
+      <p class="q"><b>P1085</b> 改成："一直读到文件尾，找最大值那天"</p>
+      <p class="a"><span class="arw">→</span><span>轮数<b>不再已知</b>，而且"还有没有下一天"<b>要读一次才知道</b>——进循环体之前算不出来。这是唯一真正需要 <code>while (scanf("%d %d", &amp;x, &amp;y) == 2)</code> 的场合，因为 <code>scanf</code> 的返回值本身就是"读到了没有"。<b>这 8 题里没有一题属于这种，但读文件、读多组输入时天天遇到。</b></span></p>
+    </div>
+    <div class="vc">
+      <p class="q"><b>P5723</b> 内层从 while 改成 for</p>
+      <p class="a"><span class="arw">→</span><span><code>for (j = 1; j &lt;= i; j++)</code> 把"初始化、判断、j++"三件事挤在一行。<b>收益是 j++ 不会忘</b>：写成 while 时，<code>j++</code> 埋在体里，一旦某条分支提前 continue 或漏写，就是死循环。<b>内层没有理由不用 for。</b></span></p>
+    </div>
+    <div class="vc">
+      <p class="q"><b>P1423</b> 改成："求游第 100 次时的总距离"</p>
+      <p class="a"><span class="arw">→</span><span>不需要"够不够 s"了，只需要<b>跑满 100 次</b> → <code>for (i = 1; i &lt;= 100; i++)</code>。这道题和 P1035 改成 100 项是同一个动作：<b>把"数据决定停"换成"题面决定停"，while 就退化成 for。</b></span></p>
+    </div>
+    <div class="vc" style="border-color:#e8d3cf;background:#fdf7f5">
+      <p class="q"><b>反过来问：P1035 能硬写成 for 吗？</b></p>
+      <p class="a"><span class="arw">→</span><span>能：<code>for (i = 1; Sn &lt;= k; i++) Sn += 1.0/i;</code>。但退出时 <code>i</code> 已经多加了 1，答案是 <code>i - 1</code>。<b>"能写"和"该写"是两件事</b>——当条件里不是计数器时，把 for 硬塞进来，等于给自己埋一个 off-by-one。<b>判据不是语法限制，是"别给自己制造出错的机会"。</b></span></p>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 5 ============ -->
+<section>
+  <h2><span class="num">05</span>一张表收尾</h2>
+  <p class="sub">8 道题的全部循环信息，可以当速查卡。</p>
+
+  <table>
+    <thead>
+      <tr><th style="width:72px">题号</th><th style="width:98px">循环条件</th><th style="width:112px">条件里是谁</th><th style="width:82px">选型</th><th>这一题真正的难点</th></tr>
+    </thead>
+    <tbody>
+      <tr><td class="mono">P1421</td><td class="mono" style="color:#807f75">—</td><td>—</td><td><b>无</b></td><td>单位统一，全程整数，别进浮点</td></tr>
+      <tr><td class="mono">P5711</td><td class="mono" style="color:#807f75">—</td><td>—</td><td><b>无</b></td><td>闰年三重条件，1900 / 2000 两个反例</td></tr>
+      <tr><td class="mono">P5716</td><td class="mono" style="color:#807f75">—</td><td>—</td><td><b>switch</b></td><td>每个 case 都要 break，穿透只能是故意的</td></tr>
+      <tr><td class="mono">P1085</td><td class="mono">i &lt;= 7</td><td>计数器 i</td><td><b>for</b></td><td>比较用 <code>&gt;</code> 而不是 <code>&gt;=</code>，并列才能取最早那天</td></tr>
+      <tr style="background:#fdf7f5"><td class="mono">P5726</td><td class="mono">i &lt;= n</td><td>计数器 i</td><td><b>for</b></td><td><b>哨兵方向</b>：min 放在上限之上，不是退一格</td></tr>
+      <tr><td class="mono">P1035</td><td class="mono">Sn &lt;= k</td><td>业务量 Sn</td><td><b>while</b></td><td><code>1.0/i</code> + 两个动作的先后顺序</td></tr>
+      <tr><td class="mono">P1423</td><td class="mono">total &lt; s</td><td>业务量 total</td><td><b>while</b></td><td>条件能挪到头上；别用 <code>i = 1</code> 当条件</td></tr>
+      <tr><td class="mono">P5723</td><td class="mono">sum &lt; L<br>j &lt;= i</td><td>外：业务量<br>内：计数器</td><td><b>外 while<br>内 for</b></td><td>内外层分开判；"是质数"和"装得下"是两个条件</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<!-- ============ 6 ============ -->
+<section>
+  <h2><span class="num">06</span>下次拿到题的 30 秒</h2>
+  <p class="sub">按顺序问，问完就能动笔，不用犹豫开哪个循环。</p>
+
+  <ol class="steps">
+    <li><b>这题要重复吗？</b> 题面里有没有"每个""一直""直到""最多/最少"。没有 → 直接算，别开循环（P1421 的教训）。</li>
+    <li><b>把循环条件先写出来，看里面是谁的名字。</b> 是 <code>i</code>、<code>j</code> 这种计数器 → for；是题目里那个量（和、距离、总和）→ while。<b>先写条件，选型自己就出来了。</b></li>
+    <li><b>写 while 时，先问三个动作谁在前。</b> 计数、累加、推进——顺序错一项就是差一或者除零。写完在纸上走前两轮。</li>
+    <li><b>写 for 时，问循环体里那几个记录变量的初值朝哪边。</b> 找最小放在最大值之上，找最大放在最小值之下。别从边界退一格（P5726 的 <code>min = 9</code>）。</li>
+    <li><b>嵌套时，内外层分开判。</b> 外层是 while 不代表内层也得是 while。内层只要条件里是计数器，就写 for。</li>
+    <li><b>提交前手算两个极端。</b> 全是同一个值（<code>10 10 10</code>）、全是上下边界（<code>0 0 10</code>）。今天那个 11.00 就是第一步就能照出来的。</li>
+  </ol>
+</section>
+
+<div class="close">
+  <p><b>这份和前几版的区别：</b>前面几版在讲"循环应该怎么想"，这一版在讲"<b>这 8 道题的循环条件分别长什么样，所以当初应该怎么选</b>"。前者是道理，后者是能直接对上你写过的代码。</p>
+  <p>判据只有一句，值得背下来：<b>循环条件里站的是计数器 <code>i</code>，就 for；站的是题目里那个量，就 while。</b>剩下所有细节——动作顺序、哨兵方向、内外层分开判——都是在这条判据之上补的。</p>
+</div>
+
+</div>
+</body>
+</html>

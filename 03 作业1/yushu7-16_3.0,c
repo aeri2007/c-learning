@@ -1,0 +1,26 @@
+#include <stdio.h>
+int main(void)
+{
+    int a;
+    int total = 0;
+    int cnt3 = 0, cnt5 = 0, cnt7 = 0;
+
+    while (scanf("%d", &a) == 1 && a != 0) {
+        total++;
+        int is3 = (a % 3 == 0);
+        int is5 = (a % 5 == 0);
+        int is7 = (a % 7 == 0);
+
+        if (is3 + is5 + is7 == 1) {
+            if (is3) cnt3++;
+            if (is5) cnt5++;
+            if (is7) cnt7++;
+        }
+    }
+
+    printf("%.2lf%%\n%.2lf%%\n%.2lf%%\n",
+           (double)cnt3 / total * 100.0,
+           (double)cnt5 / total * 100.0,
+           (double)cnt7 / total * 100.0);
+    return 0;
+}

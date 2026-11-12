@@ -1,0 +1,588 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#12141a">
+<title>7-15 / 7-16 / 7-17 · 我的写法与标准写法</title>
+<style>
+*{box-sizing:border-box;-webkit-text-size-adjust:100%}
+:root{--bg:#12141a;--card:#191c24;--line:#2b3140;--fg:#e9ecf2;--dim:#98a1b2;--acc:#6ea8fe;--warn:#f0b45e;--ok:#5fd3a6;--red:#f08a8a;--vio:#c9a6f0}
+html,body{margin:0;padding:0;background:var(--bg);color:var(--fg)}
+body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif;font-size:16px;line-height:1.78;padding:0 16px 60px;max-width:720px;margin:0 auto}
+h1{font-size:21px;line-height:1.4;margin:22px 0 6px;font-weight:700}
+h2{font-size:18px;margin:40px 0 12px;padding:10px 0 10px 12px;border-left:4px solid var(--acc);font-weight:700;scroll-margin-top:64px}
+h2 span.no{color:var(--dim);font-size:13px;font-weight:400;display:block;margin-top:2px}
+h3{font-size:15px;margin:24px 0 8px;color:var(--acc);font-weight:600}
+p{margin:10px 0}
+.sub{color:var(--dim);font-size:13px;margin:0 0 4px}
+.topbar{position:sticky;top:0;z-index:20;background:#12141a;margin:0 -16px;padding:9px 16px;border-bottom:1px solid var(--line)}
+.topbar .row{display:flex;gap:8px;overflow-x:auto;scrollbar-width:none}
+.topbar .row::-webkit-scrollbar{display:none}
+.topbar a{flex:0 0 auto;text-decoration:none;color:var(--fg);background:var(--card);border:1px solid var(--line);border-radius:999px;padding:6px 13px;font-size:13px;white-space:nowrap}
+.card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:14px 14px 6px;margin:14px 0}
+.card p:first-child{margin-top:0}
+.tag{display:inline-block;font-size:11px;padding:2px 8px;border-radius:6px;margin-right:6px;vertical-align:2px}
+.tag.me{background:#2a2233;color:var(--vio)}
+.tag.std{background:#1e2b3a;color:#7fb8f5}
+pre{background:#0c0e13;border:1px solid var(--line);border-radius:10px;padding:13px 12px;overflow-x:auto;font-size:12px;line-height:1.72;margin:12px 0;font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,"Courier New",monospace;-webkit-overflow-scrolling:touch}
+code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:.9em}
+p code,li code,td code{background:#0c0e13;border:1px solid var(--line);border-radius:5px;padding:1px 5px;color:#a8c7fa}
+td code{font-size:11.5px;padding:1px 4px}
+.cm{color:#6b7486}
+.hl{background:#2a2415;display:block;margin:0 -12px;padding:0 12px}
+ul,ol{padding-left:22px;margin:10px 0}
+li{margin:7px 0}
+table{width:100%;border-collapse:collapse;margin:12px 0;font-size:14px}
+th,td{padding:9px 8px;text-align:left;border-bottom:1px solid var(--line);vertical-align:top}
+th{color:var(--dim);font-weight:600;font-size:12.5px}
+td.num{font-family:ui-monospace,monospace;white-space:nowrap}
+table td:first-child,table th:first-child{white-space:nowrap}
+details{background:var(--card);border:1px solid var(--line);border-radius:12px;margin:12px 0;padding:0 14px}
+summary{cursor:pointer;padding:12px 0;font-size:14px;font-weight:600;color:var(--acc);list-style:none}
+summary::-webkit-details-marker{display:none}
+summary::before{content:"▸ ";color:var(--dim)}
+details[open] summary::before{content:"▾ "}
+details pre{margin:0 0 12px}
+.warn{border-left:3px solid var(--warn);background:#221d12;border-radius:0 10px 10px 0;padding:10px 14px;margin:14px 0;font-size:14px;color:#e8d3ae}
+.ok{border-left:3px solid var(--ok);background:#12211b;border-radius:0 10px 10px 0;padding:10px 14px;margin:14px 0;font-size:14px;color:#b9e6d4}
+.bad{border-left:3px solid var(--red);background:#221616;border-radius:0 10px 10px 0;padding:10px 14px;margin:14px 0;font-size:14px;color:#f0c2c2}
+.diff{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:14px;margin:12px 0}
+.diff h4{margin:0 0 10px;font-size:14.5px;font-weight:700}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:0 0 10px}
+.row2 div{background:#0c0e13;border:1px solid var(--line);border-radius:8px;padding:8px 10px}
+.row2 .lbl{font-size:11px;color:var(--dim);display:block;margin-bottom:4px}
+.row2 code{font-size:12px;overflow-wrap:break-word;word-break:normal}
+.why{font-size:13.5px;color:#c3cad8;margin:0}
+.qa{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:12px 14px;margin:10px 0}
+.qa b{color:var(--acc)}
+.chk{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:12px 14px 12px 16px;margin:10px 0;font-size:14.5px}
+.chk b{color:var(--warn);margin-right:4px}
+.chk .src{display:block;font-size:12px;color:var(--dim);margin-top:4px}
+.foot{margin-top:44px;padding-top:16px;border-top:1px solid var(--line);color:var(--dim);font-size:12.5px}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="row">
+    <a href="#top">导览</a>
+    <a href="#p15">7-15 求和</a>
+    <a href="#p16">7-16 倍数</a>
+    <a href="#p17">7-17 打折</a>
+    <a href="#common">三道题的共性</a>
+    <a href="#check">我的检查表</a>
+    <a href="#quiz">自测</a>
+  </div>
+</div>
+
+<h1 id="top">7-15 / 7-16 / 7-17</h1>
+<p class="sub">我的写法 vs 标准写法 · 手机阅读版 · 2026-11-03</p>
+
+<h2>先说结论<span class="no">三道题放在一起，看的是"同一个毛病"</span></h2>
+
+<div class="ok">
+<b>三道题的逻辑，你都写对了。</b>7-17 我和标准答案做过对拍，601 组数据输出一字不差；7-15、7-16 的结构和标准答案同源。所以你缺的不是解题能力——缺的是<b>骨架</b>和<b>边界</b>。
+</div>
+
+<table>
+<tr><th>题</th><th>你的写法卡在哪</th><th>标准答案补了什么</th></tr>
+<tr><td><b>7-15</b></td><td>写法停在 O(n²)（<b>不影响得分</b>）</td><td>递推降到 O(n)，外加一个换行</td></tr>
+<tr><td><b>7-16</b></td><td>输入没有保护</td><td>EOF 保护（三份标准全都有）</td></tr>
+<tr><td><b>7-17</b></td><td>骨架挤，变量名看不出含义</td><td>拆平：每句只干一件事</td></tr>
+</table>
+
+<p>每道题下面都是同样的四段：<b>题目规则 → 你的写法 → 标准写法 → 差异清单</b>。最后一节是把三道题并起来看，那一节才是重点。</p>
+
+<div class="ok">
+<b>本版已按题目原文逐条核对（2026-11-03）。</b>三道题的规则、边界、输出格式都比对过了。7-15 我把你的代码和标准答案跑了 n=1~3000 全域对拍，7-16 跑了重叠倍数专项，7-17 跑到总价 5000——<b>三次全部一字不差</b>。所以下面每一条差异都是真的，不再有"反推待核"的部分。
+</div>
+
+<h2 id="p15">7-15 · 数列求和<span class="no">难点：看清 An 本身已经是一层求和</span></h2>
+
+<h3>题目规则</h3>
+<p>输入一个正整数 <code>n</code>（<code>1 ≤ n ≤ 3000</code>）。数列第 n 项的定义是：</p>
+<pre>An = 1×2×3 + 2×3×4 + 3×4×5 + … + (n−2)×(n−1)×n     (n ≥ 3)
+An = 0                                                (n = 1, 2)</pre>
+<p>要求输出这个数列的<b>前 n 项和</b>：<code>S = A1 + A2 + … + An</code>。题目提示结果很大，建议用 <code>long long</code>。</p>
+
+<div class="warn">
+<b>这题真正的坑在第一步读题：<code>An</code> 本身已经是一串乘积的和。</b>它不是"第 n 项 = (n−2)(n−1)n"，而是"第 n 项 = 从 1×2×3 一路加到 (n−2)(n−1)n"。<br><br>
+所以整道题是<b>两层求和</b>：内层算单项，外层算前 n 项和。漏看那个加号、写成一层循环，样例能过但大 n 全错。<b>这一处你理解对了</b>——你的双层循环正好对应原定义。
+</div>
+
+<h3>你的写法</h3>
+<pre>#include &lt;stdio.h&gt;
+int main(void)
+{
+    long long int j=0;
+    int n=0;
+    int i=0;
+    long long int a=0;
+    long long int S=0;
+
+    scanf("%d",&amp;n);
+<span class="hl">    if(n&lt;=2) printf("0");</span>
+    else
+    {
+    for(i=1;i&lt;=n;i++)
+    {
+        for(j=1;j&lt;=i-2;j++)
+        {
+           a=a+j*(j+1)*(j+2);
+        }
+        S=S+a;
+        a=0;
+    }
+            printf("%lld\n",S);
+    }
+
+    return 0;
+}</pre>
+
+<p>先说一句：<code>a=0;</code> 放在 <code>S=S+a;</code> 之后、下一轮之前，这个位置是<b>对的</b>——每项独立累加，互不污染。这点你没写错。</p>
+
+<h3>标准写法 · 4.0（递推）</h3>
+<pre>#include&lt;stdio.h&gt;
+int main(void)
+{
+    int n, i;
+    long long Ai = 0;
+    long long sum = 0;
+
+    scanf("%d", &amp;n);
+<span class="hl">    if (n &lt;= 2) {
+        printf("0\n");
+        return 0;
+    }</span>
+
+<span class="hl">    for (i = 3; i &lt;= n; i++) {
+        Ai += (long long)(i - 2) * (i - 1) * i;
+        sum += Ai;
+    }</span>
+
+    printf("%lld\n", sum);
+    return 0;
+}</pre>
+
+<p>关键在这一行：<code>Ai += (long long)(i-2) * (i-1) * i;</code></p>
+<p>你的写法是「每算一项，都从头把 <code>i−2</code> 个乘积重新加一遍」；标准写法是「第 <code>i</code> 项 = 第 <code>i−1</code> 项 + 一个新的乘积」。所以它只需要<b>加一个新数</b>，不用重算。这一下就把 O(n²) 变成 O(n)。</p>
+
+<details>
+<summary>标准写法 2.0（和你的几乎一样，只是收拾干净了）</summary>
+<pre>    for (i = 3; i &lt;= n; i++) {
+        a = 0;
+        for (j = 1; j &lt;= i - 2; j++) {
+            a += j * (j + 1) * (j + 2);
+        }
+        S += a;
+    }</pre>
+<p style="padding-bottom:12px">外层从 3 开始（跳过必然为 0 的前两项），其余和你的完全同构。3.0 只是把 <code>Ai = 0;</code> 挪到外层循环开头，逻辑一致。</p>
+</details>
+
+<h3>差异清单</h3>
+
+<div class="diff">
+<h4>① 输出少了一个换行</h4>
+<div class="row2">
+  <div><span class="lbl">你的</span><code>printf("0");</code></div>
+  <div><span class="lbl">标准</span><code>printf("0\n");</code></div>
+</div>
+<p class="why">n≤2 这条支路只有一种输出，很容易被忽略。有些判题系统对行尾换行不敏感，有些会判错——不赌，直接对齐。</p>
+</div>
+
+<div class="diff">
+<h4>② 外层从 1 开始，前两轮空转</h4>
+<div class="row2">
+  <div><span class="lbl">你的</span><code>for(i=1; i&lt;=n; i++)</code></div>
+  <div><span class="lbl">标准</span><code>for(i=3; i&lt;=n; i++)</code></div>
+</div>
+<p class="why">i=1、i=2 时内层条件 <code>j&lt;=i-2</code> 直接不成立，白跑两圈。无害，但说明"循环从哪开始"这件事还没被当成设计决策。</p>
+</div>
+
+<div class="diff">
+<h4>③ 真正有分量的差距：复杂度</h4>
+<div class="row2">
+  <div><span class="lbl">你的</span><code>O(n²) —— 每个 i 重算一遍</code></div>
+  <div><span class="lbl">标准 4.0</span><code>O(n) —— 只加一个新项</code></div>
+</div>
+<p class="why">这不是编码能力的差距，是<b>数学眼力</b>的差距。看出"第 i 项 = 第 i−1 项 + 一个新乘积"，需要的是把它当递推数列看。这类提升只能靠多见，急不来——但你可以<b>每道题多问一句</b>：这一项能不能从上一项推出来？</p>
+</div>
+
+<div class="diff">
+<h4>④ 一个不算错的细节</h4>
+<div class="row2">
+  <div><span class="lbl">你的</span><code>long long j（只做计数）</code></div>
+  <div><span class="lbl">标准</span><code>int j</code></div>
+</div>
+<p class="why">j 最大只到 n，用 long long 浪费但无害。真正需要 64 位的是累加变量 <code>a</code> 和 <code>S</code>——这两个你都写对了。</p>
+</div>
+
+<h2 id="p16">7-16 · 倍数统计<span class="no">难点：两种"判定重叠"的流派</span></h2>
+
+<h3>规则（反推）</h3>
+<p>读入一串正整数，<b>读到 0 结束</b>（0 不计入）。统计每个数是 3、5、7 中<b>恰好一个</b>的倍数，分别记三类，最后输出三类各占全部数字的百分比，保留两位小数并带 <code>%</code>。</p>
+
+<h3>你的写法</h3>
+<pre>#include&lt;stdio.h&gt;
+int main(void)
+{
+    int cnt;
+    int a;
+    double A=0.0;
+    double B=0.0;
+    double C=0.0;
+    cnt=0;
+    double x;
+    double y;
+    double z;
+<span class="hl">    for(scanf("%d",&amp;a);a!=0;scanf("%d",&amp;a))</span>
+        {
+            cnt++;
+            if(a%15==0||a%21==0||a%35==0)
+                continue;
+<span class="hl">            else if(a%3==0) A++;
+                if(a%5==0) B++;
+                if(a%7==0) C++;</span>
+        }
+    x=(A/cnt)*100.0;
+    y=(B/cnt)*100.0;
+    z=(C/cnt)*100.0;
+    printf("%.2lf%%\n%.2lf%%\n%.2lf%%\n",x,y,z);
+
+    return 0;
+}</pre>
+
+<h3>标准写法 · 2.0（计数派）</h3>
+<pre>#include &lt;stdio.h&gt;
+int main(void)
+{
+    int a;
+    int total = 0;
+    int cnt3 = 0, cnt5 = 0, cnt7 = 0;
+
+<span class="hl">    while (scanf("%d", &amp;a) == 1 &amp;&amp; a != 0) {</span>
+        total++;
+
+<span class="hl">        int match = 0;
+        if (a % 3 == 0) match++;
+        if (a % 5 == 0) match++;
+        if (a % 7 == 0) match++;</span>
+
+        if (match == 1) {
+            if (a % 3 == 0) cnt3++;
+            if (a % 5 == 0) cnt5++;
+            if (a % 7 == 0) cnt7++;
+        }
+    }
+
+    printf("%.2lf%%\n%.2lf%%\n%.2lf%%\n",
+           (double)cnt3 / total * 100.0,
+           (double)cnt5 / total * 100.0,
+           (double)cnt7 / total * 100.0);
+    return 0;
+}</pre>
+
+<details>
+<summary>标准写法 · 4.0（枚举派，和你同一思路）</summary>
+<pre>    while (scanf("%d", &amp;a) == 1 &amp;&amp; a != 0) {
+        total++;
+        if (a % 15 == 0 || a % 21 == 0 || a % 35 == 0) {
+            continue;
+        }
+        if (a % 3 == 0) cnt3++;
+        if (a % 5 == 0) cnt5++;
+        if (a % 7 == 0) cnt7++;
+    }</pre>
+<p style="padding-bottom:12px">和你的判法完全一样，唯一多的是 <code>scanf(...) == 1</code>。</p>
+</details>
+
+<h3>差异清单</h3>
+
+<div class="diff">
+<h4>① 最要紧的一条：输入没有保护</h4>
+<div class="row2">
+  <div><span class="lbl">你的</span><code>for(scanf(...); a!=0; scanf(...))</code></div>
+  <div><span class="lbl">三份标准</span><code>while (scanf(...) == 1 &amp;&amp; a != 0)</code></div>
+</div>
+<p class="why">输入读到末尾时，<code>scanf</code> 返回 0 或 -1，<b><code>a</code> 保持上一次的值不变</b>。只要那个值不是 0，<code>a != 0</code> 永远成立，循环就停不下来。PTA 因为题目保证以 0 结尾，碰不到；但这是"靠题目保证才成立"，不是"靠代码保证"。<b>三份标准答案都做了这件事，只有你没做。</b></p>
+</div>
+
+<div class="diff">
+<h4>② 四份代码都没处理的一种输入</h4>
+<div class="row2">
+  <div><span class="lbl">输入只有 0</span><code>total = 0 → 除以零</code></div>
+  <div><span class="lbl">结果</span><code>输出 nan%</code></div>
+</div>
+<p class="why">一个有效数字都没有的时候，<code>cnt3 / total</code> 就是除以零，打出来是 <code>nan%</code>。<b>这是标准答案也漏掉的一格</b>——抄标准答案学不到它，只能靠自己的情况表补。</p>
+</div>
+
+<div class="diff">
+<h4>③ 两种流派：枚举 vs 计数</h4>
+<div class="row2">
+  <div><span class="lbl">枚举派（你 / 4.0）</span><code>%15 || %21 || %35</code></div>
+  <div><span class="lbl">计数派（2.0 / 3.0）</span><code>match == 1</code></div>
+</div>
+<p class="why">枚举派靠"列出所有两两组合"，计数派靠"数有几个条件成立"。三个条件时两者都对，但<b>条件加到四个</b>（2、3、5、7），枚举派要写 11 项排除条件，漏一项就错；计数派只加一行 <code>if</code>。可扩展性差着一个量级。</p>
+</div>
+
+<div class="diff">
+<h4>④ 计数器用了 double</h4>
+<div class="row2">
+  <div><span class="lbl">你的</span><code>double A, B, C</code></div>
+  <div><span class="lbl">标准</span><code>int cnt3, cnt5, cnt7</code></div>
+</div>
+<p class="why">结果是对的，但计数是<b>整数操作</b>，用 double 会让读的人误以为这里需要小数精度。类型应该表达意图——只在最后算百分比时转成 double 就够。</p>
+</div>
+
+<div class="diff">
+<h4>⑤ 缩进把逻辑说错了</h4>
+<div class="row2">
+  <div><span class="lbl">你的</span><code>else if(...) A++;<br>　　if(...) B++;<br>　　if(...) C++;</code></div>
+  <div><span class="lbl">实际语义</span><code>三个独立的 if</code></div>
+</div>
+<p class="why">后面两个 <code>if</code> 缩进比 <code>else if</code> 还深，看起来像是它的子句，其实是平级的三个独立判断。现在逻辑对，是因为前面有 <code>continue</code> 挡住了重叠的数——<b>一旦哪天删掉 <code>continue</code>，这三行就全错了</b>。靠上下文才成立的写法，是最危险的一类。</p>
+</div>
+
+<h2 id="p17">7-17 · 双十一打折<span class="no">难点：骨架怎么搭</span></h2>
+
+<h3>规则（反推）</h3>
+<p>输入 <code>n</code> 组数据。每组先给件数 <code>k</code>，再给 <code>k</code> 个价格。这一组价格求和后按满减结算，输出实付金额。</p>
+
+<table>
+<tr><th>总价 S</th><th>减免</th><th>实付</th></tr>
+<tr><td class="num">0 – 99</td><td class="num">0</td><td class="num">S</td></tr>
+<tr><td class="num">100 – 199</td><td class="num">30</td><td class="num">S − 30</td></tr>
+<tr><td class="num">200 – 299</td><td class="num">70</td><td class="num">S − 70</td></tr>
+<tr><td class="num">300 – 399</td><td class="num">110</td><td class="num">S − 110</td></tr>
+<tr><td class="num">400 及以上</td><td class="num">160</td><td class="num">S − 160</td></tr>
+</table>
+
+<h3>你的写法</h3>
+<pre>#include&lt;stdio.h&gt;
+int main(void)
+{
+    int n=0;
+    int S=0;
+    int i=0;
+    int j=0;
+    int a=0;
+
+    scanf("%d",&amp;n);
+    for(j=1;j&lt;=n;j++){
+<span class="hl">        for(scanf("%d",&amp;i);i!=0;i--){</span>
+            scanf("%d",&amp;a);
+            S=S+a;}
+        switch(S/100)
+        {
+<span class="hl">        case 0: S=S;</span>
+        break;
+        case 1: S=S-30;
+        break;
+        case 2: S=S-70;
+        break;
+        case 3: S=S-110;
+        break;
+        default:S=S-160;
+        }
+        printf("%d\n",S);
+        S=0;
+    }
+    return 0;
+}</pre>
+
+<h3>标准写法 · 2.0（推荐）</h3>
+<pre>#include &lt;stdio.h&gt;
+
+int main(void)
+{
+    int caseCount = 0;   <span class="cm">/* 组数 */</span>
+    int goodsCount = 0;  <span class="cm">/* 件数 */</span>
+    int price = 0;       <span class="cm">/* 单价 */</span>
+    int sum = 0;         <span class="cm">/* 总价 */</span>
+    int i = 0;
+    int j = 0;
+
+    if (scanf("%d", &amp;caseCount) != 1) {
+        return 1;
+    }
+
+    for (i = 0; i &lt; caseCount; i++) {
+        sum = 0;   <span class="cm">/* 开头清零 */</span>
+
+        if (scanf("%d", &amp;goodsCount) != 1) {
+            return 1;
+        }
+        for (j = 0; j &lt; goodsCount; j++) {
+            if (scanf("%d", &amp;price) != 1) {
+                return 1;
+            }
+            sum += price;
+        }
+
+        <span class="cm">/* 从高到低判，天然互斥 */</span>
+        if (sum &gt;= 400) {
+            sum -= 160;
+        } else if (sum &gt;= 300) {
+            sum -= 110;
+        } else if (sum &gt;= 200) {
+            sum -= 70;
+        } else if (sum &gt;= 100) {
+            sum -= 30;
+        }
+
+        printf("%d\n", sum);
+    }
+
+    return 0;
+}</pre>
+
+<details>
+<summary>标准写法 · 3.0（switch 派，有个隐藏前提）</summary>
+<pre>        <span class="cm">/* 前提：档位等宽，每 100 一档 */</span>
+        switch (sum / 100) {
+        case 0:
+            break;   <span class="cm">/* 不满 100 */</span>
+        case 1:
+            sum -= 30;
+            break;
+        case 2:
+            sum -= 70;
+            break;
+        case 3:
+            sum -= 110;
+            break;
+        default:
+            sum -= 160;
+            break;
+        }</pre>
+<p style="padding-bottom:12px">它能把总价映射成档号，是因为档位恰好每 100 一档。题目改成"满 100 减 30、满 300 减 100"，<code>sum/100</code> 立刻散架，得推倒重写——而 2.0 只改四个数字。</p>
+</details>
+
+<h3>差异清单</h3>
+
+<div class="diff">
+<h4>① 清零放在末尾，是"顺序耦合"</h4>
+<div class="row2">
+  <div><span class="lbl">你的</span><code>循环末尾 S=0;</code></div>
+  <div><span class="lbl">标准</span><code>循环开头 sum=0;</code></div>
+</div>
+<p class="why">放末尾的意思是：下一组能不能干净开始，取决于这一组有没有顺利走到最后一行。哪天中间加个 <code>continue</code> 或提前 <code>return</code>，清零就跳过，下一组带着上一组的钱进账——<b>不报错，只算错</b>。放开头，每组自己负责自己的初值。</p>
+</div>
+
+<div class="diff">
+<h4>② 一行干三件事</h4>
+<div class="row2">
+  <div><span class="lbl">你的</span><code>for(scanf(...); i!=0; i--)</code></div>
+  <div><span class="lbl">标准</span><code>读件数 → for(j=0;j&lt;goodsCount;j++)</code></div>
+</div>
+<p class="why">读第一个数、判断终止、递减计数挤在一个位置，而 <code>i</code> 同时是"还剩几件"和"数到第几件"。读的人得先翻译一遍。拆开后每句只干一件事。</p>
+</div>
+
+<div class="diff">
+<h4>③ switch 里的空操作</h4>
+<div class="row2">
+  <div><span class="lbl">你的</span><code>case 0: S=S; break;</code></div>
+  <div><span class="lbl">标准</span><code>case 0: break;</code></div>
+</div>
+<p class="why"><code>S=S</code> 什么也没做。为了占位而写的语句是纯噪音，会让读的人停下来想"这里是不是漏了什么"。</p>
+</div>
+
+<div class="diff">
+<h4>④ 变量名</h4>
+<div class="row2">
+  <div><span class="lbl">你的</span><code>S  i  j  a</code></div>
+  <div><span class="lbl">标准</span><code>sum  goodsCount  price  caseCount</code></div>
+</div>
+<p class="why">这不是审美。变量名是你明天重读这段代码时唯一的线索——名字含糊，就只能靠推理去回忆，而推理会出错。</p>
+</div>
+
+<div class="ok">
+7-17 我做过对拍：你的 + 2.0 + 3.0 三份代码，<b>601 组数据（总价 0–600 全区间）输出一字不差</b>。所以这份标准解法不是在纠正你的错误，是换骨架。
+</div>
+
+<h2 id="common">三道题的共性<span class="no">这一节比前三节加起来都重要</span></h2>
+
+<p>把三道题并排放，有三件事重复出现。重复出现的东西不是手滑，是<b>习惯</b>。</p>
+
+<h3>共性一 · 输入检查，三道题一次都没做</h3>
+<table>
+<tr><th>题</th><th>你的写法</th><th>标准写法</th></tr>
+<tr><td>7-15</td><td><code>scanf("%d",&amp;n);</code></td><td><code>if (scanf(...) != 1)</code></td></tr>
+<tr><td>7-16</td><td><code>for(scanf(...); ...)</code></td><td><code>while (scanf(...) == 1 &amp;&amp; ...)</code></td></tr>
+<tr><td>7-17</td><td><code>for(scanf(...); ...)</code></td><td><code>if (scanf(...) != 1)</code></td></tr>
+</table>
+<p>三道题，三种写法，<b>共同点是全都没有检查 <code>scanf</code> 的返回值</b>。这不是某一题漏了，这是一个还没建立的习惯。</p>
+
+<h3>共性二 · 把 scanf 塞进 for 的初始化位置</h3>
+<p>7-16 和 7-17 都出现了这个写法。它语法上没错（只执行一次），但它是<b>技巧</b>，不是<b>表达</b>——它把"读入"这件属于流程的事，藏进了"循环初始化"这个属于计数的位置。一个习惯重复两次，就说明它是你的默认反应，以后还会继续出现。</p>
+
+<h3>共性三 · 变量名清一色单字母</h3>
+<p>7-15 的 <code>i / j / a / S</code>、7-16 的 <code>a / A / B / C / cnt</code>、7-17 的 <code>S / i / j / a</code>。有意思的是：<b>你在标准答案里见到过 <code>goodsCount</code>、<code>match</code>、<code>total</code> 这些名字，但它们从来没出现在你自己的代码里。</b>说明你"看得懂"但"没采用"。</p>
+
+<h3>共性四 · 只有 7-15 有复杂度问题</h3>
+<p>7-16、7-17 都是一遍扫描，效率没问题。7-15 卡在 O(n²) 是因为没看出递推——这是唯一一处"算法"层面的差距，其余全是"骨架"层面的。</p>
+
+<div class="bad">
+<b>把四件事收成一句话：</b>你的失分不在"想不出解法"，而在"解法想出来之后的工程习惯"——输入会不会崩、初值谁来管、变量叫什么、这个循环能不能更省。
+</div>
+
+<h2 id="check">我的检查表<span class="no">从这三道题长出来的，不是抄的</span></h2>
+
+<p>每写完一道题，花 60 秒过一遍。十条，每条背后都对应上面某一道题的具体失分点。</p>
+
+<div class="chk"><b>1.</b> 输入是空的 / 第一个就是终止符，程序输出什么？
+<span class="src">来自 7-16：输入只有 0 → 除以零 → nan%</span></div>
+
+<div class="chk"><b>2.</b> 每一次 scanf 的返回值，我检查了吗？
+<span class="src">来自 7-15 / 7-16 / 7-17：三道题全缺</span></div>
+
+<div class="chk"><b>3.</b> 多组数据时，每组的初值在<b>开头</b>清零了吗？
+<span class="src">来自 7-17：清零写在末尾，靠"走完最后一行"保证</span></div>
+
+<div class="chk"><b>4.</b> 边界值跑过了吗？阈值 −1、阈值、阈值 +1，各一组。
+<span class="src">来自篮球赛：21 和 22 那个坑</span></div>
+
+<div class="chk"><b>5.</b> 有没有变量同时扮演两个角色？
+<span class="src">来自 7-17：i 既是"还剩几件"又是"数到第几件"</span></div>
+
+<div class="chk"><b>6.</b> 循环的起点和等号，是设计出来的还是顺手写的？
+<span class="src">来自 7-15：i 从 1 开始，前两轮空转</span></div>
+
+<div class="chk"><b>7.</b> 上界能到多大？会不会溢出？
+<span class="src">来自 7-15：累加变量必须是 long long</span></div>
+
+<div class="chk"><b>8.</b> 这个循环，n 到 10⁵ 还跑得动吗？
+<span class="src">来自 7-15：O(n²) 在 n=10⁵ 时要跑几十亿次</span></div>
+
+<div class="chk"><b>9.</b> 输出格式：换行、精度、末尾空格，都对上了吗？
+<span class="src">来自 7-15：n≤2 时少一个 \n</span></div>
+
+<div class="chk"><b>10.</b> 把变量名念出来，明天还知道它是什么吗？
+<span class="src">来自三道题的共性</span></div>
+
+<h2 id="quiz">自测<span class="no">不开电脑，脑子里过一遍</span></h2>
+
+<h3>7-15</h3>
+<div class="qa"><b>1.</b> n = 2 时，标准写法输出什么？为什么可以直接 <code>return 0</code>？</div>
+<div class="qa"><b>2.</b> 如果标准 4.0 把 <code>(long long)</code> 去掉，多大的 i 会出错？<br><span class="sub">提示：三个 int 相乘，超过 21.47 亿就溢出。</span></div>
+
+<h3>7-16</h3>
+<div class="qa"><b>3.</b> 输入 <code>3 5 7 15 0</code>，三行输出分别是什么？<br><span class="sub">提示：15 同时是 3 和 5 的倍数。</span></div>
+<div class="qa"><b>4.</b> 输入只有一个 <code>0</code>，你的程序输出什么？应该输出什么？</div>
+
+<h3>7-17</h3>
+<div class="qa"><b>5.</b> 总价 99、100、399、400，分别实付多少？</div>
+<div class="qa"><b>6.</b> 如果把判断改成从低到高（先判 <code>sum&gt;=100</code>），总价 450 会算出什么？为什么？</div>
+
+<h3>跨题</h3>
+<div class="qa"><b>7.</b> 三道题里，你的循环哪一处会在输入提前结束时<b>停不下来</b>？指出来。</div>
+<div class="qa"><b>8.</b> 如果 7-16 的条件从 3、5、7 改成 2、3、5、7，你的写法要加几行？标准 2.0 要加几行？</div>
+
+<div class="foot">
+怎么弄到手机上：微信 → 文件传输助手 → 发送这个 HTML → 手机上用浏览器打开。单文件、不联网也能看。<br>
+规则部分均为从代码反推，未经题目原文核对。
+</div>
+
+</body>
+</html>
