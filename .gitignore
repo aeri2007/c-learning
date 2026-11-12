@@ -28,3 +28,5 @@ Desktop.ini
 
 # ===== 日志 =====
 *.log
+# 自动上传脚本的运行日志（本机记录，不需要提交）
+tools/upload.log
